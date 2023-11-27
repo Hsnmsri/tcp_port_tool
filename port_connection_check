@@ -1,0 +1,97 @@
+#!/usr/bin/env php
+<?php
+
+require_once("classes/CLI.php");
+
+use App\Cli;
+
+execute($argv);
+
+function execute($arguments)
+{
+    if (count($arguments) < 2) {
+        Cli::print_error("invalid command!\n");
+        cli_help();
+        die;
+    }
+
+    if (count($arguments) == 2) {
+        print("Port 80 status : ");
+        check_port($arguments[1], 80) ? Cli::print_success("open") : Cli::print_error("close");
+        print("\n");
+        die;
+    }
+
+    if ((count($arguments) == 3) && (in_array("-s", $arguments))) {
+        print("Port 443 status : ");
+        check_port($arguments[1], 443) ? Cli::print_success("open") : Cli::print_error("close");
+        print("\n");
+        die;
+    }
+
+    if (count($arguments) == 3) {
+        print("Port " . $arguments[2] . " status : ");
+        check_port($arguments[1], $arguments[2]) ? Cli::print_success("open") : Cli::print_error("close");
+        print("\n");
+        die;
+    }
+
+    if (count($arguments) == 4) {
+        for ($port = $arguments[2]; $port <= $arguments[3]; $port++) {
+            print("# " . $port . " : ");
+            check_port($arguments[1], $port) ? Cli::print_success("open") : Cli::print_error("close");
+            print("\n");
+        }
+        die;
+    }
+
+    if (count($arguments) == 5 && in_array("-o", $arguments)) {
+        print("- open ports");
+        print("\n");
+        for ($port = $arguments[2]; $port <= $arguments[3]; $port++) {
+            if (check_port($arguments[1], $port)) {
+                Cli::print_success("# " . $port);
+                print("\n");
+            }
+        }
+        die;
+    }
+
+    if (count($arguments) == 5 && in_array("-c", $arguments)) {
+        print("- close ports");
+        print("\n");
+        for ($port = $arguments[2]; $port <= $arguments[3]; $port++) {
+            if (!check_port($arguments[1], $port)) {
+                Cli::print_error("# " . $port);
+                print("\n");
+            }
+        }
+        die;
+    }
+}
+
+function cli_help()
+{
+    print("[domain] [option]\n");
+    print("\tdefault port : 80\n");
+    print("\t-s domain with ssl , port 443\n");
+
+    print("[domain] [port]\n");
+
+    print("[domain] [start_port] [end_port]\n");
+    print("\tdefault get all ports with status\n");
+    print("\t-o get opened ports\n");
+    print("\t-c get closed ports\n");
+}
+
+function check_port($domain, $port, $timeout = 1)
+{
+    $fp = @fsockopen($domain, $port, $errno, $errstr, $timeout);
+
+    if ($fp) {
+        fclose($fp);
+        return true;
+    }
+
+    return false;
+}

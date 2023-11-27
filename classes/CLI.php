@@ -2,7 +2,7 @@
 
 namespace App;
 
-class CLI
+class Cli
 {
 
     /**
@@ -25,7 +25,7 @@ class CLI
      */
     public static function print_error($text)
     {
-        print("\033[0;31m" . $text . "\033[0m\n");
+        print("\033[0;31m" . $text . "\033[0m");
     }
 
     /**
@@ -37,6 +37,6 @@ class CLI
      */
     public static function print_success($text)
     {
-        print("\033[0;32m" . $text . "\033[0m\n");
+        print("\033[0;32m" . $text . "\033[0m");
     }
 }
